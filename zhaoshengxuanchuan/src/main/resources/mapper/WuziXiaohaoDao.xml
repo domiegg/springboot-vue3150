@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.WuziXiaohaoDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.wuzi_id as wuziId
+        ,a.zhaoshengrenyuan_id as zhaoshengrenyuanId
+        ,a.wuzi_xiaohao_uuid_number as wuziXiaohaoUuidNumber
+        ,a.wuzi_xiaohao_name as wuziXiaohaoName
+        ,a.wuzi_xiaohao_address as wuziXiaohaoAddress
+        ,a.wuzi_xiaohao_time as wuziXiaohaoTime
+        ,a.wuzi_xiaohao_types as wuziXiaohaoTypes
+        ,a.wuzi_xiaohao_kucun_number as wuziXiaohaoKucunNumber
+        ,a.wuzi_xiaohao_content as wuziXiaohaoContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.WuziXiaohaoView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,wuzi.wuzi_uuid_number as wuziUuidNumber
+        ,wuzi.wuzi_name as wuziName
+        ,wuzi.wuzi_photo as wuziPhoto
+        ,wuzi.wuzi_danwei as wuziDanwei
+        ,wuzi.wuzi_types as wuziTypes
+        ,wuzi.wuzi_kucun_number as wuziKucunNumber
+        ,wuzi.wuzi_yuzhi as wuziYuzhi
+        ,wuzi.wuzi_content as wuziContent
+        ,zhaoshengrenyuan.zhaoshengrenyuan_name as zhaoshengrenyuanName
+        ,zhaoshengrenyuan.zhaoshengrenyuan_phone as zhaoshengrenyuanPhone
+        ,zhaoshengrenyuan.zhaoshengrenyuan_id_number as zhaoshengrenyuanIdNumber
+        ,zhaoshengrenyuan.zhaoshengrenyuan_photo as zhaoshengrenyuanPhoto
+        ,zhaoshengrenyuan.zhaoshengrenyuan_email as zhaoshengrenyuanEmail
+
+        FROM wuzi_xiaohao  a
+        left JOIN wuzi wuzi ON a.wuzi_id = wuzi.id
+        left JOIN zhaoshengrenyuan zhaoshengrenyuan ON a.zhaoshengrenyuan_id = zhaoshengrenyuan.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.wuziId != null and params.wuziId != ''">
+                and (
+                    a.wuzi_id = #{params.wuziId}
+                )
+            </if>
+            <if test="params.zhaoshengrenyuanId != null and params.zhaoshengrenyuanId != ''">
+                and (
+                    a.zhaoshengrenyuan_id = #{params.zhaoshengrenyuanId}
+                )
+            </if>
+            <if test=" params.wuziXiaohaoUuidNumber != '' and params.wuziXiaohaoUuidNumber != null and params.wuziXiaohaoUuidNumber != 'null' ">
+                and a.wuzi_xiaohao_uuid_number like CONCAT('%',#{params.wuziXiaohaoUuidNumber},'%')
+            </if>
+            <if test=" params.wuziXiaohaoName != '' and params.wuziXiaohaoName != null and params.wuziXiaohaoName != 'null' ">
+                and a.wuzi_xiaohao_name like CONCAT('%',#{params.wuziXiaohaoName},'%')
+            </if>
+            <if test=" params.wuziXiaohaoAddress != '' and params.wuziXiaohaoAddress != null and params.wuziXiaohaoAddress != 'null' ">
+                and a.wuzi_xiaohao_address like CONCAT('%',#{params.wuziXiaohaoAddress},'%')
+            </if>
+            <if test=" params.wuziXiaohaoTimeStart != '' and params.wuziXiaohaoTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.wuzi_xiaohao_time) >= UNIX_TIMESTAMP(#{params.wuziXiaohaoTimeStart}) ]]>
+            </if>
+            <if test=" params.wuziXiaohaoTimeEnd != '' and params.wuziXiaohaoTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.wuzi_xiaohao_time) <= UNIX_TIMESTAMP(#{params.wuziXiaohaoTimeEnd}) ]]>
+            </if>
+            <if test="params.wuziXiaohaoTypes != null and params.wuziXiaohaoTypes != ''">
+                and a.wuzi_xiaohao_types = #{params.wuziXiaohaoTypes}
+            </if>
+            <if test="params.wuziXiaohaoKucunNumberStart != null and params.wuziXiaohaoKucunNumberStart != ''">
+                <![CDATA[  and a.wuzi_xiaohao_kucun_number >= #{params.wuziXiaohaoKucunNumberStart}   ]]>
+            </if>
+            <if test="params.wuziXiaohaoKucunNumberEnd != null and params.wuziXiaohaoKucunNumberEnd != ''">
+                <![CDATA[  and a.wuzi_xiaohao_kucun_number <= #{params.wuziXiaohaoKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.wuziXiaohaoKucunNumber != null and params.wuziXiaohaoKucunNumber != ''">
+                and a.wuzi_xiaohao_kucun_number = #{params.wuziXiaohaoKucunNumber}
+             </if>
+            <if test=" params.wuziXiaohaoContent != '' and params.wuziXiaohaoContent != null and params.wuziXiaohaoContent != 'null' ">
+                and a.wuzi_xiaohao_content like CONCAT('%',#{params.wuziXiaohaoContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断物资的id不为空 -->
+            <if test=" params.wuziIdNotNull != '' and params.wuziIdNotNull != null and params.wuziIdNotNull != 'null' ">
+                and a.wuzi_id IS NOT NULL
+            </if>
+            <if test=" params.wuziUuidNumber != '' and params.wuziUuidNumber != null and params.wuziUuidNumber != 'null' ">
+                and wuzi.wuzi_uuid_number like CONCAT('%',#{params.wuziUuidNumber},'%')
+            </if>
+            <if test=" params.wuziName != '' and params.wuziName != null and params.wuziName != 'null' ">
+                and wuzi.wuzi_name like CONCAT('%',#{params.wuziName},'%')
+            </if>
+            <if test=" params.wuziDanwei != '' and params.wuziDanwei != null and params.wuziDanwei != 'null' ">
+                and wuzi.wuzi_danwei like CONCAT('%',#{params.wuziDanwei},'%')
+            </if>
+            <if test="params.wuziTypes != null  and params.wuziTypes != ''">
+                and wuzi.wuzi_types = #{params.wuziTypes}
+            </if>
+
+            <if test="params.wuziKucunNumberStart != null  and params.wuziKucunNumberStart != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number >= #{params.wuziKucunNumberStart}   ]]>
+            </if>
+            <if test="params.wuziKucunNumberEnd != null  and params.wuziKucunNumberEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_kucun_number <= #{params.wuziKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.wuziKucunNumber != null  and params.wuziKucunNumber != '' ">
+                and wuzi.wuzi_kucun_number = #{params.wuziKucunNumber}
+            </if>
+            <if test="params.wuziYuzhiStart != null  and params.wuziYuzhiStart != '' ">
+                <![CDATA[  and wuzi.wuzi_yuzhi >= #{params.wuziYuzhiStart}   ]]>
+            </if>
+            <if test="params.wuziYuzhiEnd != null  and params.wuziYuzhiEnd != '' ">
+                <![CDATA[  and wuzi.wuzi_yuzhi <= #{params.wuziYuzhiEnd}   ]]>
+            </if>
+            <if test="params.wuziYuzhi != null  and params.wuziYuzhi != '' ">
+                and wuzi.wuzi_yuzhi = #{params.wuziYuzhi}
+            </if>
+            <if test=" params.wuziContent != '' and params.wuziContent != null and params.wuziContent != 'null' ">
+                and wuzi.wuzi_content like CONCAT('%',#{params.wuziContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(wuzi.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断招生人员的id不为空 -->
+            <if test=" params.zhaoshengrenyuanIdNotNull != '' and params.zhaoshengrenyuanIdNotNull != null and params.zhaoshengrenyuanIdNotNull != 'null' ">
+                and a.zhaoshengrenyuan_id IS NOT NULL
+            </if>
+            <if test=" params.zhaoshengrenyuanName != '' and params.zhaoshengrenyuanName != null and params.zhaoshengrenyuanName != 'null' ">
+                and zhaoshengrenyuan.zhaoshengrenyuan_name like CONCAT('%',#{params.zhaoshengrenyuanName},'%')
+            </if>
+            <if test=" params.zhaoshengrenyuanPhone != '' and params.zhaoshengrenyuanPhone != null and params.zhaoshengrenyuanPhone != 'null' ">
+                and zhaoshengrenyuan.zhaoshengrenyuan_phone like CONCAT('%',#{params.zhaoshengrenyuanPhone},'%')
+            </if>
+            <if test=" params.zhaoshengrenyuanIdNumber != '' and params.zhaoshengrenyuanIdNumber != null and params.zhaoshengrenyuanIdNumber != 'null' ">
+                and zhaoshengrenyuan.zhaoshengrenyuan_id_number like CONCAT('%',#{params.zhaoshengrenyuanIdNumber},'%')
+            </if>
+            <if test=" params.zhaoshengrenyuanEmail != '' and params.zhaoshengrenyuanEmail != null and params.zhaoshengrenyuanEmail != 'null' ">
+                and zhaoshengrenyuan.zhaoshengrenyuan_email like CONCAT('%',#{params.zhaoshengrenyuanEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
